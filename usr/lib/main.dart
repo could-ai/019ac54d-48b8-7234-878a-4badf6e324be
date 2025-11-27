@@ -20,12 +20,131 @@ class LeapAwayApp extends StatelessWidget {
         brightness: Brightness.dark,
         primarySwatch: Colors.purple,
         scaffoldBackgroundColor: const Color(0xFF1A1A2E),
-        fontFamily: 'Courier', // Arcade style font feel
+        fontFamily: 'Courier',
+        elevatedButtonTheme: ElevatedButtonThemeData(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.purpleAccent,
+            padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+            textStyle: const TextStyle(fontSize: 18, fontFamily: 'Courier', fontWeight: FontWeight.bold),
+          ),
+        ),
       ),
-      home: const GameScreen(),
+      initialRoute: '/',
+      routes: {
+        '/': (context) => const HomeScreen(),
+        '/game': (context) => const GameScreen(),
+        '/shop': (context) => const ShopScreen(),
+        '/upgrades': (context) => const UpgradesScreen(),
+        '/modes': (context) => const GameModesScreen(),
+      },
     );
   }
 }
+
+class HomeScreen extends StatelessWidget {
+  const HomeScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [Color(0xFF2E0249), Color(0xFF570A57), Color(0xFFA91079)],
+          ),
+        ),
+        child: Center(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text(
+                "LEAP AWAY",
+                style: TextStyle(
+                  fontSize: 50,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                  letterSpacing: 2,
+                  shadows: [
+                    Shadow(color: Colors.purple, blurRadius: 20, offset: Offset(0, 5))
+                  ],
+                ),
+              ),
+              const SizedBox(height: 50),
+              ElevatedButton.icon(
+                icon: const Icon(Icons.play_arrow),
+                label: const Text("START GAME"),
+                onPressed: () => Navigator.pushNamed(context, '/game'),
+              ),
+              const SizedBox(height: 20),
+              ElevatedButton.icon(
+                icon: const Icon(Icons.shopping_cart),
+                label: const Text("SHOP"),
+                onPressed: () => Navigator.pushNamed(context, '/shop'),
+              ),
+              const SizedBox(height: 20),
+              ElevatedButton.icon(
+                icon: const Icon(Icons.upgrade),
+                label: const Text("UPGRADES"),
+                onPressed: () => Navigator.pushNamed(context, '/upgrades'),
+              ),
+              const SizedBox(height: 20),
+              ElevatedButton.icon(
+                icon: const Icon(Icons.gamepad),
+                label: const Text("GAME MODES"),
+                onPressed: () => Navigator.pushNamed(context, '/modes'),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class ShopScreen extends StatelessWidget {
+  const ShopScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Shop')),
+      body: const Center(
+        child: Text('Shop coming soon!', style: TextStyle(fontSize: 24, color: Colors.white)),
+      ),
+    );
+  }
+}
+
+class UpgradesScreen extends StatelessWidget {
+  const UpgradesScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Upgrades')),
+      body: const Center(
+        child: Text('Upgrades coming soon!', style: TextStyle(fontSize: 24, color: Colors.white)),
+      ),
+    );
+  }
+}
+
+class GameModesScreen extends StatelessWidget {
+  const GameModesScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Game Modes')),
+      body: const Center(
+        child: Text('New game modes coming soon!', style: TextStyle(fontSize: 24, color: Colors.white)),
+      ),
+    );
+  }
+}
+
 
 class GameScreen extends StatefulWidget {
   const GameScreen({super.key});
@@ -68,7 +187,6 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
   void initState() {
     super.initState();
     
-    // Setup Jump Animation
     _jumpController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 300),
@@ -97,13 +215,10 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
       isGameOver = false;
       isPlaying = false;
       
-      // Generate initial platforms
-      // First platform is at 0,0
       platforms.add(PlatformData(position: const Offset(0, 0), type: PlatformType.normal));
       
       _generatePlatforms(initialPlatformCount);
       
-      // Place player on first platform
       playerPos = const Offset(0, -playerSize / 2);
       _updateCamera();
     });
@@ -114,10 +229,6 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
     Random random = Random();
 
     for (int i = 0; i < count; i++) {
-      // Decide direction: Right or Forward (Up in 2D view, but looks like zig-zag)
-      // For this isometric-like view:
-      // Move X+ (Right) or Y- (Up/Forward)
-      
       bool goRight = random.nextBool();
       
       if (goRight) {
@@ -126,7 +237,6 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
         lastPos = Offset(lastPos.dx, lastPos.dy - platformSize);
       }
 
-      // Determine platform type
       PlatformType type = PlatformType.normal;
       bool hasCoin = false;
       bool hasSpike = false;
@@ -134,9 +244,8 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
       if (random.nextDouble() < 0.1) type = PlatformType.moving;
       if (random.nextDouble() < 0.05) type = PlatformType.crumbling;
       
-      // Add obstacles/coins
       if (random.nextDouble() < 0.2) hasCoin = true;
-      if (random.nextDouble() < 0.1 && i > 5) hasSpike = true; // No spikes at start
+      if (random.nextDouble() < 0.1 && i > 5) hasSpike = true;
 
       platforms.add(PlatformData(
         position: lastPos,
@@ -151,7 +260,6 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
     setState(() {
       isPlaying = true;
     });
-    // Start game loop for particles and moving platforms
     _gameLoop = Timer.periodic(const Duration(milliseconds: 16), (timer) {
       _updateGameLoop();
     });
@@ -165,16 +273,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
     }
     if (_jumpController.isAnimating) return;
 
-    // Determine target platform (the next one in the list)
     if (currentPlatformIndex + 1 < platforms.length) {
-      PlatformData target = platforms[currentPlatformIndex + 1];
-      
-      // Start jump animation
-      // We animate the "progress" of the jump manually in the build or listener, 
-      // but here we just trigger the controller.
-      // The actual position update happens when animation completes for simplicity in this prototype,
-      // or we interpolate. Let's interpolate for smoothness.
-      
       _jumpController.forward();
     }
   }
@@ -184,16 +283,13 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
       currentPlatformIndex++;
       PlatformData landedPlatform = platforms[currentPlatformIndex];
       
-      // Update player position to the center of the platform
       playerPos = Offset(landedPlatform.position.dx, landedPlatform.position.dy - playerSize/2);
       
-      // Check for spikes
       if (landedPlatform.hasSpike) {
         _gameOver();
         return;
       }
 
-      // Check for coins
       if (landedPlatform.hasCoin) {
         coins++;
         landedPlatform.hasCoin = false;
@@ -202,7 +298,6 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
 
       score++;
       
-      // Generate more platforms as we go
       if (platforms.length - currentPlatformIndex < 10) {
         _generatePlatforms(10);
       }
@@ -217,22 +312,16 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
       isPlaying = false;
       _gameLoop?.cancel();
     });
-    // Vibrate if on mobile
     HapticFeedback.heavyImpact();
   }
 
   void _updateCamera() {
-    // Center the player on screen
-    // Screen center is (Width/2, Height/2)
-    // We want CameraOffset + PlayerPos = ScreenCenter
-    // So CameraOffset = ScreenCenter - PlayerPos
-    // We'll calculate this in the build method using MediaQuery
+    // This is calculated in the build method
   }
 
   void _updateGameLoop() {
     if (!mounted) return;
     setState(() {
-      // Update particles
       for (var p in particles) {
         p.update();
       }
@@ -264,8 +353,6 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
   Widget build(BuildContext context) {
     Size screenSize = MediaQuery.of(context).size;
     
-    // Calculate camera offset to center player
-    // We interpolate player position based on jump animation
     Offset renderPlayerPos = playerPos;
     
     if (_jumpController.isAnimating && currentPlatformIndex + 1 < platforms.length) {
@@ -273,27 +360,22 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
       Offset end = platforms[currentPlatformIndex + 1].position;
       double t = _jumpAnimation.value;
       
-      // Linear interpolation for X and Y
       double currentX = ui.lerpDouble(start.dx, end.dx, t)!;
       double currentY = ui.lerpDouble(start.dy, end.dy, t)!;
       
-      // Add jump arc (parabola) to Y
-      // Height peaks at t=0.5
       double heightOffset = sin(t * pi) * jumpHeight;
       
       renderPlayerPos = Offset(currentX, currentY - heightOffset - playerSize/2);
     }
 
-    // Camera follows player
     double camX = screenSize.width / 2 - renderPlayerPos.dx;
-    double camY = screenSize.height / 2 - renderPlayerPos.dy + 100; // +100 to look slightly ahead/down
+    double camY = screenSize.height / 2 - renderPlayerPos.dy + 100;
 
     return Scaffold(
       body: GestureDetector(
         onTapDown: (_) => _handleTap(),
         child: Stack(
           children: [
-            // Background Gradient
             Container(
               decoration: const BoxDecoration(
                 gradient: LinearGradient(
@@ -304,16 +386,13 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
               ),
             ),
 
-            // Game World
             Transform.translate(
               offset: Offset(camX, camY),
               child: Stack(
                 clipBehavior: Clip.none,
                 children: [
-                  // Draw Platforms
                   ...platforms.asMap().entries.map((entry) {
                     int idx = entry.key;
-                    // Optimization: Only draw visible platforms (rough estimate)
                     if ((idx - currentPlatformIndex).abs() > 15) return const SizedBox.shrink();
                     
                     return Positioned(
@@ -323,7 +402,6 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
                     );
                   }),
 
-                  // Draw Particles
                   ...particles.map((p) => Positioned(
                     left: p.position.dx,
                     top: p.position.dy,
@@ -337,7 +415,6 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
                     ),
                   )),
 
-                  // Draw Player
                   Positioned(
                     left: renderPlayerPos.dx - playerSize / 2,
                     top: renderPlayerPos.dy - playerSize / 2,
@@ -371,7 +448,6 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
               ),
             ),
 
-            // UI Overlay
             SafeArea(
               child: Padding(
                 padding: const EdgeInsets.all(20.0),
@@ -410,11 +486,9 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
                             ),
                           ],
                         ),
-                        // Character Unlock Button (Mockup)
                         IconButton(
                           onPressed: () {
                             setState(() {
-                              // Random color change to simulate character switch
                               playerColor = Color((Random().nextDouble() * 0xFFFFFF).toInt()).withOpacity(1.0);
                             });
                           },
@@ -428,31 +502,17 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
               ),
             ),
 
-            // Start / Game Over Screen
             if (!isPlaying && !isGameOver)
               Center(
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Text(
-                      "LEAP AWAY",
-                      style: TextStyle(
-                        fontSize: 50,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                        letterSpacing: 2,
-                        shadows: [
-                          Shadow(color: Colors.purple, blurRadius: 20, offset: Offset(0, 5))
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 20),
-                    const Text(
+                  children: const [
+                    Text(
                       "Tap to Start",
                       style: TextStyle(color: Colors.white70, fontSize: 20),
                     ),
-                    const SizedBox(height: 10),
-                    const Icon(Icons.touch_app, color: Colors.white, size: 40),
+                    SizedBox(height: 10),
+                    Icon(Icons.touch_app, color: Colors.white, size: 40),
                   ],
                 ),
               ),
@@ -480,11 +540,13 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
                       const SizedBox(height: 30),
                       ElevatedButton(
                         onPressed: _initializeGame,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.purpleAccent,
-                          padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
-                        ),
-                        child: const Text("TRY AGAIN", style: TextStyle(fontSize: 20)),
+                        child: const Text("TRY AGAIN"),
+                      ),
+                      const SizedBox(height: 15),
+                      ElevatedButton(
+                        onPressed: () => Navigator.pop(context),
+                        style: ElevatedButton.styleFrom(backgroundColor: Colors.grey[700]),
+                        child: const Text("MAIN MENU"),
                       ),
                     ],
                   ),
@@ -505,7 +567,6 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
       alignment: Alignment.center,
       clipBehavior: Clip.none,
       children: [
-        // The Platform
         Container(
           width: platformSize,
           height: platformSize,
@@ -522,7 +583,6 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
             ],
           ),
         ),
-        // Coin
         if (platform.hasCoin)
           Positioned(
             top: -20,
@@ -536,9 +596,8 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
               ),
             ),
           ),
-        // Spike
         if (platform.hasSpike)
-          Positioned(
+          const Positioned(
             top: -15,
             child: Icon(Icons.change_history, color: Colors.red, size: 30),
           ),
@@ -546,8 +605,6 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
     );
   }
 }
-
-// --- Data Models ---
 
 enum PlatformType { normal, moving, crumbling }
 
